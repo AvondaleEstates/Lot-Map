@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lot Map</title>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 100vh; width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    var map = L.map('map').setView([35.4676, -97.5164], 16); // Change to your location
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    fetch(https://api.sheety.co/ece4fff59ced3a3a28f6ec361e63d406/avondaleLotSpreadsheet/sheet1)
+      .then(response => response.json())
+      .then(data => {
+        data.lots.forEach(lot => {
+          L.circle([35.4676 + Math.random()/1000, -97.5164 + Math.random()/1000], {
+            radius: 10,
+            color: lot.status === 'Sold' ? 'red' : 'green'
+          })
+          .addTo(map)
+          .bindPopup(`<b>${lot.lotId}</b><br>Status: ${lot.status}<br>Price: ${lot.price}`);
+        });
+      });
+  </script>
+</body>
+</html>

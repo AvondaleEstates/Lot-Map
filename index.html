@@ -30,17 +30,25 @@
       .then(data => {
         console.log("Loaded data:", data);
         data.sheet1.forEach(function(lot) {
-          const popupContent = `
-            <strong>${lot.lotId}</strong><br>
-            Status: ${lot.status}<br>
-            Price: $${lot.price}<br>
-            <a href="${lot.link}" target="_blank">View</a>
-          `;
+          // Ensure lat/lng are valid
+          if (lot.lat && lot.lng) {
+            const lat = parseFloat(lot.lat);
+            const lng = parseFloat(lot.lng);
 
-          // For now, we'll just drop markers randomly near the center (replace later with real coordinates)
-const lat = parseFloat(lot.lat);
-const lng = parseFloat(lot.lng);
+            const popupContent = `
+              <strong>${lot.lotId}</strong><br>
+              Status: ${lot.status}<br>
+              Price: $${lot.price}<br>
+              <a href="${lot.link}" target="_blank">View</a>
+            `;
 
-
-          L.marker([lat, lng]).addTo(map).bindPopup(popupContent);
-        }
+            L.marker([lat, lng]).addTo(map).bindPopup(popupContent);
+          }
+        });
+      })
+      .catch(error => {
+        console.error("Error loading Sheety data:", error);
+      });
+  </script>
+</body>
+</html>

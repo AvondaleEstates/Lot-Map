@@ -1,9 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Lot Map</title>
+  <title>Interactive Lot Map</title>
+  <meta charset="utf-8" />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
+  <style>
+    #map { height: 100vh; width: 100vw; margin: 0; padding: 0; }
+    body { margin: 0; }
+  </style>
 </head>
 <body>
-  <h1>Hello World</h1>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Initialize map centered on Oklahoma City coordinates
+    var map = L.map('map').setView([35.4676, -97.5164], 16);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Replace this URL with your actual Sheety API URL
+    var sheetyAPI = https://api.sheety.co/ece4fff59ced3a3a28f6ec361e63d406/avondaleLotSpreadsheet/sheet1;
+
+    fetch(sheetyAPI)
+      .then(response => response.json())
+      .then(data => {
+        data.lots.forEach(lot => {
+          // For now, randomize positions slightly around center
+          var lat = 35.4676 + Math.random() / 1000;
+          var lng = -97.5164 + Math.random() / 1000;
+
+          var circle = L.circle([lat, lng], {
+            color: lot.status === 'Sold' ? 'red' : 'green',
+            radius: 15,
+          }).addTo(map);
+
+          circle.bindPopup(
+            `<b>${lot.lotId}</b><br>Status: ${lot.status}<br>Price: ${lot.price}`
+          );
+        });
+      })
+      .catch(err => {
+        console.error('Error loading Sheety data:', err);
+      });
+  </script>
 </body>
 </html>

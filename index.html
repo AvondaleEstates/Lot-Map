@@ -38,8 +38,9 @@
           `;
 
           // For now, we'll just drop markers randomly near the center (replace later with real coordinates)
-          const lat = 35.4676 + (Math.random() - 0.5) * 0.01;
-          const lng = -97.5164 + (Math.random() - 0.5) * 0.01;
+const lat = parseFloat(lot.lat);
+const lng = parseFloat(lot.lng);
+
 
           L.marker([lat, lng]).addTo(map).bindPopup(popupContent);
         }

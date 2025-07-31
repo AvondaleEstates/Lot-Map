@@ -30,7 +30,7 @@
     fetch(sheetyAPI)
       .then(response => response.json())
       .then(data => {
-        data.lots.forEach(lot => {
+        data.sheet1.forEach(lot => {
           // For now, randomize positions slightly around center
           var lat = 35.4676 + Math.random() / 1000;
           var lng = -97.5164 + Math.random() / 1000;

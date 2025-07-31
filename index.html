@@ -1,48 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Interactive Lot Map</title>
+  <title>Avondale Estates Lot Map</title>
   <meta charset="utf-8" />
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet/dist/leaflet.css"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    #map { height: 100vh; width: 100vw; margin: 0; padding: 0; }
-    body { margin: 0; }
+    /* Make the map fill the full viewport */
+    html, body, #map {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
   </style>
 </head>
 <body>
+
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Initialize map centered on Oklahoma City
-    var map = L.map('map').setView([35.4676, -97.5164], 16);
+    // Initialize the map centered on Oklahoma City
+    const map = L.map('map').setView([35.4676, -97.5164], 15);
 
+    // Add OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Load lot data from Sheety
+    // Fetch lot data from Sheety API
     fetch("https://api.sheety.co/ece4fff59ced3a3a28f6ec361e63d406/avondaleEstatesLotSpreadsheet/sheet1")
       .then(response => response.json())
       .then(data => {
-        console.log("Loaded data:", data);
-        data.sheet1.forEach(function(lot) {
-          // Ensure lat/lng are valid
+        const lots = data.sheet1;
+
+        lots.forEach(lot => {
+          // Only add markers if lat and lng exist
           if (lot.lat && lot.lng) {
             const lat = parseFloat(lot.lat);
             const lng = parseFloat(lot.lng);
 
             const popupContent = `
               <strong>${lot.lotId}</strong><br>
-              Status: ${lot.status}<br>
-              Price: $${lot.price}<br>
-              <a href="${lot.link}" target="_blank">View</a>
+              Status: ${lot.Status}<br>
+              Price: ${lot.Price}<br>
+              <a href="${lot.Link}" target="_blank">View Lot</a>
             `;
 
-            L.marker([lat, lng]).addTo(map).bindPopup(popupContent);
+            L.marker([lat, lng])
+              .addTo(map)
+              .bindPopup(popupContent);
           }
         });
       })
@@ -50,5 +57,6 @@
         console.error("Error loading Sheety data:", error);
       });
   </script>
+
 </body>
 </html>

@@ -17,34 +17,29 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Initialize map centered on Oklahoma City coordinates
+    // Initialize map centered on Oklahoma City
     var map = L.map('map').setView([35.4676, -97.5164], 16);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Replace this URL with your actual Sheety API URL
-    var sheetyAPI = 'https://api.sheety.co/ece4fff59ced3a3a28f6ec361e63d406/avondaleEstatesLotSpreadsheet/sheet1';
+    // Load lot data from Sheety
+    fetch("https://api.sheety.co/ece4fff59ced3a3a28f6ec361e63d406/avondaleEstatesLotSpreadsheet/sheet1")
+      .then(response => response.json())
+      .then(data => {
+        console.log("Loaded data:", data);
+        data.sheet1.forEach(function(lot) {
+          const popupContent = `
+            <strong>${lot.lotId}</strong><br>
+            Status: ${lot.status}<br>
+            Price: $${lot.price}<br>
+            <a href="${lot.link}" target="_blank">View</a>
+          `;
 
-<script>
-  fetch("https://api.sheety.co/ece4fff59ced3a3a28f6ec361e63d406/avondaleEstatesLotSpreadsheet/sheet1")
-    .then(response => response.json())
-    .then(data => {
-      console.log("Loaded data:", data); // <-- helps with debugging
-      data.sheet1.forEach(function(lot) {
-        const lotElement = document.createElement("div");
-        lotElement.innerHTML = `
-          <strong>${lot.lotId}</strong> - ${lot.status} - $${lot.price}  
-          <a href="${lot.link}" target="_blank">View</a>
-        `;
-        document.body.appendChild(lotElement);
-      });
-    })
-    .catch(error => {
-      console.error("Error loading Sheety data:", error);
-    });
-</script>
+          // For now, we'll just drop markers randomly near the center (replace later with real coordinates)
+          const lat = 35.4676 + (Math.random() - 0.5) * 0.01;
+          const lng = -97.5164 + (Math.random() - 0.5) * 0.01;
 
-</body>
-</html>
+          L.marker([lat, lng]).addTo(map).bindPopup(popupContent);
+        }

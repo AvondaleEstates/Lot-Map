@@ -1,62 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Avondale Estates Lot Map</title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>
-    /* Make the map fill the full viewport */
-    html, body, #map {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-  </style>
+    <title>Focused Map around Deer Creek High School</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
+    <h2>Interactive Map Focused on Deer Creek High School</h2>
+    <div id="map"></div>
 
-  <div id="map"></div>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Map center coordinates
+        var centerLat = 34.0692;
+        var centerLng = -84.1449;
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
-    // Initialize the map centered on Oklahoma City
-    const map = L.map('map').setView([35.4676, -97.5164], 15);
-
-    // Add OpenStreetMap tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Fetch lot data from Sheety API
-    fetch("https://api.sheety.co/ece4fff59ced3a3a28f6ec361e63d406/avondaleEstatesLotSpreadsheet/sheet1")
-      .then(response => response.json())
-      .then(data => {
-        const lots = data.sheet1;
-
-        lots.forEach(lot => {
-          // Only add markers if lat and lng exist
-          if (lot.lat && lot.lng) {
-            const lat = parseFloat(lot.lat);
-            const lng = parseFloat(lot.lng);
-
-            const popupContent = `
-              <strong>${lot.lotId}</strong><br>
-              Status: ${lot.Status}<br>
-              Price: ${lot.Price}<br>
-              <a href="${lot.Link}" target="_blank">View Lot</a>
-            `;
-
-            L.marker([lat, lng])
-              .addTo(map)
-              .bindPopup(popupContent);
-          }
+        // Initialize the map
+        var map = L.map('map', {
+            center: [centerLat, centerLng],
+            zoom: 15,
+            maxBounds: [
+                [centerLat - 0.02, centerLng - 0.02], // SW corner
+                [centerLat + 0.02, centerLng + 0.02]  // NE corner
+            ]
         });
-      })
-      .catch(error => {
-        console.error("Error loading Sheety data:", error);
-      });
-  </script>
 
+        // Map overlay image
+        var imageUrl = 'your-map-image.png'; // Replace with your actual image filename
+        var imageBounds = [
+            [centerLat - 0.008, centerLng - 0.008], // SW corner
+            [centerLat + 0.008, centerLng + 0.008]  // NE corner
+        ];
+
+        // Add overlay
+        L.imageOverlay(imageUrl, imageBounds).addTo(map);
+
+        // Optional: Add marker for Deer Creek High School
+        L.marker([34.0692, -84.1449]).addTo(map)
+            .bindPopup('Deer Creek High School')
+            .openPopup();
+
+        // Optional: Add more markers or interactivity here
+    </script>
 </body>
 </html>

@@ -1,53 +1,93 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Focused Map around Deer Creek High School</title>
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>
-        #map {
-            height: 600px;
-            width: 100%;
-        }
-    </style>
+  <meta charset="utf-8">
+  <title>Avondale Estates Interactive Map</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      background: white;
+    }
+    #map-container {
+      width: 100vw;
+      height: 100vh;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    svg {
+      width: 90%;
+      height: auto;
+    }
+    .lot:hover {
+      cursor: pointer;
+      opacity: 0.8;
+    }
+    .tooltip {
+      position: absolute;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      pointer-events: none;
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <h2>Interactive Map Focused on Deer Creek High School</h2>
-    <div id="map"></div>
+  <div id="map-container">
+    <!-- Your SVG goes here -->
+    <!-- I’ll insert it below with class="lot" added to each path -->
+    <!-- Here's a placeholder example -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1522 1513">
+      <path id="Lot 1 B1" class="lot" d="M359.5 1396V1512L479 1511.5L504 1394.5C487.5 1388.58 482.035 1382.44 477 1368L359.5 1396Z" fill="#ccc" stroke="black"/>
+      <!-- Add more paths for other lots, each with unique id="Lot X" and class="lot" -->
+    </svg>
+  </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script>
-        // Map center coordinates
-        var centerLat = 34.0692;
-        var centerLng = -84.1449;
+  <div class="tooltip" id="tooltip"></div>
 
-        // Initialize the map
-        var map = L.map('map', {
-            center: [centerLat, centerLng],
-            zoom: 15,
-            maxBounds: [
-                [centerLat - 0.02, centerLng - 0.02], // SW corner
-                [centerLat + 0.02, centerLng + 0.02]  // NE corner
-            ]
+  <script>
+    const sheetyUrl = "https://api.sheety.co/ece4fff59ced3a3a28f6ec361e63d406/avondaleEstatesLotSpreadsheet/sheet1";
+    const tooltip = document.getElementById("tooltip");
+
+    fetch(sheetyUrl)
+      .then(res => res.json())
+      .then(data => {
+        data.sheet1.forEach(lot => {
+          const lotElement = document.getElementById(lot.lotId);
+          if (lotElement) {
+            // Set fill color
+            if (lot.status.toLowerCase() === "available") {
+              lotElement.setAttribute("fill", "#00cc66"); // green
+            } else {
+              lotElement.setAttribute("fill", "#cc3333"); // red
+            }
+
+            // Add hover tooltip
+            lotElement.addEventListener("mousemove", (e) => {
+              tooltip.style.left = e.pageX + 10 + "px";
+              tooltip.style.top = e.pageY + 10 + "px";
+              tooltip.innerHTML = `<strong>${lot.lotId}</strong><br>$${lot.price} - ${lot.status}`;
+              tooltip.style.display = "block";
+            });
+            lotElement.addEventListener("mouseleave", () => {
+              tooltip.style.display = "none";
+            });
+
+            // Click to open listing link
+            lotElement.addEventListener("click", () => {
+              if (lot.link) window.open(lot.link, "_blank");
+            });
+          }
         });
-
-        // Map overlay image
-        var imageUrl = 'your-map-image.png'; // Replace with your actual image filename
-        var imageBounds = [
-            [centerLat - 0.008, centerLng - 0.008], // SW corner
-            [centerLat + 0.008, centerLng + 0.008]  // NE corner
-        ];
-
-        // Add overlay
-        L.imageOverlay(imageUrl, imageBounds).addTo(map);
-
-        // Optional: Add marker for Deer Creek High School
-        L.marker([34.0692, -84.1449]).addTo(map)
-            .bindPopup('Deer Creek High School')
-            .openPopup();
-
-        // Optional: Add more markers or interactivity here
-    </script>
+      })
+      .catch(err => {
+        console.error("Error loading Sheety data:", err);
+      });
+  </script>
 </body>
 </html>
